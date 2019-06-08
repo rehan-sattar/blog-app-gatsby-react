@@ -1,7 +1,9 @@
 import React from "react"
 import Layout from "../components/layout"
+import { graphql, useStaticQuery } from "gatsby"
 
 const BlogPage = () => {
+  // static data of blogs.
   const blogs = [
     {
       title: "Understanding Redux, What ? When? Why ?",
@@ -15,17 +17,49 @@ const BlogPage = () => {
     },
   ]
 
+  const data = useStaticQuery(graphql`
+    query {
+      allMarkdownRemark {
+        edges {
+          node {
+            html
+            frontmatter {
+              title
+              date
+            }
+          }
+        }
+      }
+    }
+  `)
+
+  const posts = data.allMarkdownRemark.edges.map(e => ({
+    html: e.node.html,
+    title: e.node.frontmatter.title,
+    date: e.node.frontmatter.date,
+  }))
+
+  console.log("POSTS", posts)
   return (
     <Layout>
       <h1>Blogs</h1>
       {blogs.map((blog, index) => (
-        <div>
+        <div key={index}>
           <h5>
             {index + 1}. {blog.title}
           </h5>
           <p>
             <a href={blog.link}>Read this blog here.</a>
           </p>
+        </div>
+      ))}
+
+      <h1>Posts</h1>
+      {posts.map((post, index) => (
+        <div key={index}>
+          <h5>
+            {index + 1}. {post.title}
+          </h5>
         </div>
       ))}
     </Layout>
